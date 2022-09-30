@@ -1,5 +1,6 @@
 //import logo from "./logo.svg";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 export interface IGaeb {
   position: string;
   type: string;
@@ -11,7 +12,6 @@ export interface IGaeb {
   totalPrice: number;
   totalTime: number;
 }
-
 export interface IParserResult {
   entity_type_id: string;
   entity_type_name: string;
@@ -120,14 +120,28 @@ function Block({ content }: { content: IParserResult[] | IGaeb[] }) {
 }
 
 function App() {
+  const [lvData, setLvData] = useState([] as IGaeb[]);
+  const [dxfData, setDxfData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const gaeb = await axios.get("http://localhost:4000/gaeb");
+      const dxf = await axios.get("http://localhost:4000/groupeDxf");
+
+      setLvData(gaeb.data);
+      setDxfData(dxf.data);
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className="App">
       <h1 className="text-3xl font-bold underline m-2">
         Leistungsverzeichnis & DXF
       </h1>
       <div className="grid grid-cols-3 gap-4">
-        <BOQBlock content={boqEntries} />
-        <DxfBlock content={parserResult} />
+        <BOQBlock content={lvData} />
+        <DxfBlock content={dxfData} />
         <Block content={[]} />
       </div>
     </div>
