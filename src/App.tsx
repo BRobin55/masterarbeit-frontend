@@ -52,18 +52,41 @@ const parserResult: IParserResult[] = [
 ];
 
 function BOQBlock({ content }: { content: IGaeb[] }) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
+
+  const filters = filter.split(",");
+  const filteredContent = content.filter((element) =>
+    element.longText.toLocaleLowerCase().includes(search.toLocaleLowerCase()) &&
+    filter !== ""
+      ? !element.shortText.toLocaleLowerCase().includes(filter)
+      : true
+  );
   return (
     <div className="border-2 bg-blue-50">
+      <input
+        placeholder="LV-Long-Position"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <input
+        placeholder="LV-Long-Position-Filter"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+      />
       <table className="w-full">
         <thead className="bg-blue-300 font-bold">
           <tr>
             <td>Beschreibung Short</td>
             <td>Long</td>
-            <td>Menge</td>
+            <td>
+              Menge (
+              {filteredContent.reduce((prev, curr) => prev + curr.quantity, 0)})
+            </td>
           </tr>
         </thead>
         <tbody>
-          {content.map((element) => (
+          {filteredContent.map((element) => (
             <tr className="hover:bg-blue-100 max-h-12 w-10">
               <td>{element.shortText}</td>
               <td className="">{"?"}</td>
@@ -77,18 +100,33 @@ function BOQBlock({ content }: { content: IGaeb[] }) {
 }
 
 function DxfBlock({ content }: { content: IParserResult[] }) {
+  const [search, setSearch] = useState("");
+
+  const filteredContent = content.filter((element) =>
+    element.entity_type_name_acad_proxy_class_with_id
+      .toLocaleLowerCase()
+      .includes(search.toLocaleLowerCase())
+  );
   return (
     <div className="border-2 bg-blue-50">
+      <input
+        placeholder="DXF-Element"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       <table className="w-full">
         <thead className="bg-blue-300 font-bold">
           <tr>
             <td>Beschreibung</td>
             <td>Beschreibung 2</td>
-            <td>Menge</td>
+            <td>
+              Menge (
+              {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
+            </td>
           </tr>
         </thead>
         <tbody>
-          {content.map((element) => (
+          {filteredContent.map((element) => (
             <tr className="hover:bg-blue-100 h-10 w-10">
               <td>{element.entity_type_name}</td>
               <td className="">
@@ -124,15 +162,17 @@ function App() {
   const [dxfData, setDxfData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const gaeb = await axios.get("http://localhost:4000/gaeb");
-      const dxf = await axios.get("http://localhost:4000/groupeDxf");
-
-      setLvData(gaeb.data);
+    const fetchGaeb = async () => {
+      const gaeb = axios.get("http://localhost:4001/gaeb");
+      setLvData((await gaeb).data);
+    };
+    const fetchDxf = async () => {
+      const dxf = await axios.get("http://localhost:4001/groupeDxf");
       setDxfData(dxf.data);
     };
 
-    fetchData();
+    fetchDxf();
+    fetchGaeb();
   }, []);
   return (
     <div className="App">
