@@ -1,27 +1,14 @@
 //import logo from "./logo.svg";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-export interface IGaeb {
-  position: string;
-  type: string;
-  unitPrice: number;
-  quantity: number;
-  unitTag: string;
-  shortText: string;
-  longText: string;
-  totalPrice: number;
-  totalTime: number;
-}
-export interface IParserResult {
-  entity_type_id: string;
-  entity_type_name: string;
-  entity_type_name_acad_proxy_class_with_id: string;
-  amount: number;
-  Artikelnummer?: string;
-  Artieklbezeichnung?: string;
-}
+import { useEffect, useState } from "react";
+import BOQTable from "./Boq";
+import CombinedTable from "./Combined";
+import DxfTable from "./Dxf";
+import { IGaeb } from "./gaeb.interface";
+import { DxfElementDto } from "./interfaces";
+import { IParserResult } from "./parser-result.interface";
 
-const boqEntries: IGaeb[] = [
+/*const boqEntries: IGaeb[] = [
   {
     position: "01.01.",
     type: "POSITION",
@@ -49,117 +36,39 @@ const parserResult: IParserResult[] = [
     entity_type_name_acad_proxy_class_with_id: "Sicherheitsleuchte",
     amount: 45,
   },
-];
+];*/
 
-function BOQBlock({ content }: { content: IGaeb[] }) {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("");
+export const saveCombination = async (
+  boq: IGaeb,
+  dxfElement: IParserResult
+) => {
+  return axios
+    .post("http://localhost:4001/dxf-element", {
+      ...dxfElement,
+      billOfQuantities: [boq],
+    } as DxfElementDto)
+    .then((res) => res.data as []);
+};
 
-  const filters = filter.split(",");
-  const filteredContent = content.filter((element) =>
-    element.longText.toLocaleLowerCase().includes(search.toLocaleLowerCase()) &&
-    filter !== ""
-      ? !element.shortText.toLocaleLowerCase().includes(filter)
-      : true
-  );
-  return (
-    <div className="border-2 bg-blue-50">
-      <input
-        placeholder="LV-Long-Position"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <input
-        placeholder="LV-Long-Position-Filter"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-      />
-      <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
-          <tr>
-            <td>Beschreibung Short</td>
-            <td>Long</td>
-            <td>
-              Menge (
-              {filteredContent.reduce((prev, curr) => prev + curr.quantity, 0)})
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredContent.map((element) => (
-            <tr className="hover:bg-blue-100 max-h-12 w-10">
-              <td>{element.shortText}</td>
-              <td className="">{"?"}</td>
-              <td>{`${element.quantity} ${element.unitTag}`}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+export const deleteBoq = async (boqId: string) => {
+  return axios
+    .delete(`http://localhost:4001/dxf-element/boq/${boqId}`)
+    .then((res) => res.data as []);
+};
 
-function DxfBlock({ content }: { content: IParserResult[] }) {
-  const [search, setSearch] = useState("");
-
-  const filteredContent = content.filter((element) =>
-    element.entity_type_name_acad_proxy_class_with_id
-      .toLocaleLowerCase()
-      .includes(search.toLocaleLowerCase())
-  );
-  return (
-    <div className="border-2 bg-blue-50">
-      <input
-        placeholder="DXF-Element"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
-          <tr>
-            <td>Beschreibung</td>
-            <td>Beschreibung 2</td>
-            <td>
-              Menge (
-              {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredContent.map((element) => (
-            <tr className="hover:bg-blue-100 h-10 w-10">
-              <td>{element.entity_type_name}</td>
-              <td className="">
-                {element.entity_type_name_acad_proxy_class_with_id}
-              </td>
-              <td>{element.amount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function Block({ content }: { content: IParserResult[] | IGaeb[] }) {
-  return (
-    <div className="border-2 bg-blue-50">
-      <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
-          <tr>
-            <td>Beschreibung</td>
-            <td>Menge</td>
-          </tr>
-        </thead>
-        <tbody>{}</tbody>
-      </table>
-    </div>
-  );
-}
+export const deleteDxf = async (dxfId: string) => {
+  return axios
+    .delete(`http://localhost:4001/dxf-element/${dxfId}`)
+    .then((res) => res.data as []);
+};
 
 function App() {
   const [lvData, setLvData] = useState([] as IGaeb[]);
-  const [dxfData, setDxfData] = useState([]);
+  const [dxfData, setDxfData] = useState([] as IParserResult[]);
+  const [combinedData, setCombinedData] = useState([] as []);
+
+  const [selectedBoq, setSelectedBoq] = useState(null as IGaeb | null);
+  const [selectedDxf, setSelectedDxf] = useState(null as IParserResult | null);
 
   useEffect(() => {
     const fetchGaeb = async () => {
@@ -170,9 +79,14 @@ function App() {
       const dxf = await axios.get("http://localhost:4001/groupeDxf");
       setDxfData(dxf.data);
     };
+    const fetchCombined = async () => {
+      const combined = await axios.get("http://localhost:4001/dxf-element/");
+      setCombinedData(combined.data);
+    };
 
     fetchDxf();
     fetchGaeb();
+    fetchCombined();
   }, []);
   return (
     <div className="App">
@@ -180,9 +94,21 @@ function App() {
         Leistungsverzeichnis & DXF
       </h1>
       <div className="grid grid-cols-3 gap-4">
-        <BOQBlock content={lvData} />
-        <DxfBlock content={dxfData} />
-        <Block content={[]} />
+        <BOQTable
+          content={lvData}
+          selectedBoq={selectedBoq}
+          setSelectedBoq={setSelectedBoq}
+          selectedDxf={selectedDxf}
+        />
+        <DxfTable
+          content={dxfData}
+          selectedDxf={selectedDxf}
+          setSelectedDxf={setSelectedDxf}
+          selectedBoq={selectedBoq}
+          setSelectedBoq={setSelectedBoq}
+          setCombinedData={setCombinedData}
+        />
+        <CombinedTable content={combinedData} setCombinedData={setCombinedData}/>
       </div>
     </div>
   );
