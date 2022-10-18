@@ -5,4 +5,5 @@ export interface IParserResult {
   amount: number;
   Artikelnummer?: string;
   Artieklbezeichnung?: string;
+  BoqPosition?: string;
 }

@@ -5,7 +5,7 @@ import BOQTable from "./Boq";
 import CombinedTable from "./Combined";
 import DxfTable from "./Dxf";
 import { IGaeb } from "./gaeb.interface";
-import { DxfElementDto } from "./interfaces";
+import { CreateDxfElementWithBoq, DxfElementDto } from "./interfaces";
 import { IParserResult } from "./parser-result.interface";
 
 /*const boqEntries: IGaeb[] = [
@@ -46,7 +46,15 @@ export const saveCombination = async (
     .post("http://localhost:4001/dxf-element", {
       ...dxfElement,
       billOfQuantities: [boq],
-    } as DxfElementDto)
+    } as CreateDxfElementWithBoq)
+    .then((res) => res.data as []);
+};
+
+export const updateCombination = async (dxfId: string, boq: IGaeb) => {
+  return axios
+    .patch("http://localhost:4001/dxf-element/" + dxfId, {
+      billOfQuantities: [boq],
+    } as CreateDxfElementWithBoq)
     .then((res) => res.data as []);
 };
 
@@ -93,7 +101,7 @@ function App() {
       <h1 className="text-3xl font-bold underline m-2">
         Leistungsverzeichnis & DXF
       </h1>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 max-h-[36rem]">
         <BOQTable
           content={lvData}
           selectedBoq={selectedBoq}
@@ -108,7 +116,14 @@ function App() {
           setSelectedBoq={setSelectedBoq}
           setCombinedData={setCombinedData}
         />
-        <CombinedTable content={combinedData} setCombinedData={setCombinedData}/>
+        <CombinedTable
+          content={combinedData}
+          setCombinedData={setCombinedData}
+          selectedBoq={selectedBoq}
+          setSelectedBoq={setSelectedBoq}
+        />
+        <div>asd</div>
+        <div>sdsa</div>
       </div>
     </div>
   );

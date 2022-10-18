@@ -1,4 +1,5 @@
 export interface DxfElementDto {
+  id: string;
   entity_type_name: string;
   entity_type_id: string;
   entity_type_name_acad_proxy_class_with_id: string;
@@ -17,4 +18,13 @@ interface CreateBillOfQuantity {
   totalPrice: number;
   totalTime: number;
   unitTag: string;
+}
+
+export interface CreateDxfElementWithBoq {
+  entity_type_name: string;
+  entity_type_id: string;
+  entity_type_name_acad_proxy_class_with_id: string;
+  Artikelnummer?: string;
+  Artikelbezeichnung?: string;
+  billOfQuantities: CreateBillOfQuantity[];
 }

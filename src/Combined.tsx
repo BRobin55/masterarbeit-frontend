@@ -1,13 +1,23 @@
 import { useState } from "react";
-import { deleteBoq, deleteDxf } from "./App";
+import {
+  deleteBoq,
+  deleteDxf,
+  saveCombination,
+  updateCombination,
+} from "./App";
 import { MinusCircleIcon } from "@heroicons/react/24/solid";
+import { IGaeb } from "./gaeb.interface";
 
 export default function CombinedTable({
   content,
   setCombinedData,
+  selectedBoq,
+  setSelectedBoq,
 }: {
   content: any[];
   setCombinedData: React.Dispatch<React.SetStateAction<[]>>;
+  selectedBoq: IGaeb | null;
+  setSelectedBoq: React.Dispatch<React.SetStateAction<IGaeb | null>>;
 }) {
   const [search, setSearch] = useState("");
 
@@ -30,16 +40,26 @@ export default function CombinedTable({
         onChange={(e) => setSearch(e.target.value)}
       />
       <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
+        <thead className=" bg-blue-300 font-bold text-left">
           <tr>
             <th>Beschreibung</th>
             <th>Menge</th>
             <th className=""></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className=" overflow-y-auto overflow-x-hidden">
           {filteredContent.map((element) => (
-            <tr className="h-10 w-10" key={element.entity_type_id}>
+            <tr
+              className="h-10 w-10"
+              key={element.entity_type_id}
+              onClick={(e) => {
+                if (selectedBoq)
+                  updateCombination(element.id, selectedBoq).then((res) => {
+                    setCombinedData(res);
+                    setSelectedBoq(null);
+                  });
+              }}
+            >
               <td>
                 <div className="hover:bg-blue-100 ">
                   {element.entity_type_name_acad_proxy_class_with_id}

@@ -16,12 +16,15 @@ export default function BOQTable({
   const [filter, setFilter] = useState("");
 
   //const filters = filter.split(",");
-  const filteredContent = content.filter((element) =>
-    element.longText.toLocaleLowerCase().includes(search.toLocaleLowerCase()) &&
-    filter !== ""
-      ? !element.shortText.toLocaleLowerCase().includes(filter)
-      : true
-  );
+  const filteredContent = content
+    .filter((element) =>
+      element.longText.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+    )
+    .filter((element) =>
+      filter !== ""
+        ? !element.shortText.toLocaleLowerCase().includes(filter)
+        : true
+    );
   return (
     <div className="border-2 bg-blue-50">
       <input
@@ -36,16 +39,16 @@ export default function BOQTable({
       />
       <table className="w-full">
         <thead className="bg-blue-300 font-bold">
-          <tr>
-            <td>Beschreibung Short</td>
-            <td>Long</td>
-            <td>
+          <tr className="text-left">
+            <th className="">Beschreibung Short</th>
+            <th className="">Long</th>
+            <th className="">
               Menge (
               {filteredContent.reduce((prev, curr) => prev + curr.quantity, 0)})
-            </td>
+            </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="overflow-y-auto overflow-x-hidden">
           {filteredContent.map((element) => (
             <tr
               key={element.position}
@@ -57,9 +60,9 @@ export default function BOQTable({
                 setSelectedBoq(element);
               }}
             >
-              <td>{element.shortText}</td>
+              <td className="">{element.shortText}</td>
               <td className="">{"?"}</td>
-              <td>{`${element.quantity} ${element.unitTag}`}</td>
+              <td className="">{`${element.quantity} ${element.unitTag}`}</td>
             </tr>
           ))}
         </tbody>

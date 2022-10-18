@@ -33,17 +33,17 @@ export default function DxfTable({
         onChange={(e) => setSearch(e.target.value)}
       />
       <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
+        <thead className="bg-blue-300 font-bold text-left">
           <tr>
-            <td>Beschreibung</td>
-            <td>Beschreibung 2</td>
-            <td>
+            <th>Beschreibung</th>
+            <th>Beschreibung 2</th>
+            <th>
               Menge (
               {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
-            </td>
+            </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="overflow-y-auto overflow-x-hidden">
           {filteredContent.map((element) => (
             <tr
               key={element.entity_type_name_acad_proxy_class_with_id}
