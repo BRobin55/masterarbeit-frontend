@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import BOQTable from "./Boq";
 import CombinedTable from "./Combined";
+import { CombinedData } from "./combinedData.interface";
 import DxfTable from "./Dxf";
 import { IGaeb } from "./gaeb.interface";
 import { CreateDxfElementWithBoq, DxfElementDto } from "./interfaces";
@@ -47,7 +48,7 @@ export const saveCombination = async (
       ...dxfElement,
       billOfQuantities: [boq],
     } as CreateDxfElementWithBoq)
-    .then((res) => res.data as []);
+    .then((res) => res.data as CombinedData[]);
 };
 
 export const updateCombination = async (dxfId: string, boq: IGaeb) => {
@@ -55,25 +56,25 @@ export const updateCombination = async (dxfId: string, boq: IGaeb) => {
     .patch("http://localhost:4001/dxf-element/" + dxfId, {
       billOfQuantities: [boq],
     } as CreateDxfElementWithBoq)
-    .then((res) => res.data as []);
+    .then((res) => res.data as CombinedData[]);
 };
 
 export const deleteBoq = async (boqId: string) => {
   return axios
     .delete(`http://localhost:4001/dxf-element/boq/${boqId}`)
-    .then((res) => res.data as []);
+    .then((res) => res.data as CombinedData[]);
 };
 
 export const deleteDxf = async (dxfId: string) => {
   return axios
     .delete(`http://localhost:4001/dxf-element/${dxfId}`)
-    .then((res) => res.data as []);
+    .then((res) => res.data as CombinedData[]);
 };
 
 function App() {
   const [lvData, setLvData] = useState([] as IGaeb[]);
   const [dxfData, setDxfData] = useState([] as IParserResult[]);
-  const [combinedData, setCombinedData] = useState([] as []);
+  const [combinedData, setCombinedData] = useState([] as CombinedData[]);
 
   const [selectedBoq, setSelectedBoq] = useState(null as IGaeb | null);
   const [selectedDxf, setSelectedDxf] = useState(null as IParserResult | null);
@@ -107,6 +108,7 @@ function App() {
           selectedBoq={selectedBoq}
           setSelectedBoq={setSelectedBoq}
           selectedDxf={selectedDxf}
+          combinedData={combinedData}
         />
         <DxfTable
           content={dxfData}
@@ -114,6 +116,7 @@ function App() {
           setSelectedDxf={setSelectedDxf}
           selectedBoq={selectedBoq}
           setSelectedBoq={setSelectedBoq}
+          combinedData={combinedData}
           setCombinedData={setCombinedData}
         />
         <CombinedTable

@@ -1,12 +1,9 @@
 import { useState } from "react";
-import {
-  deleteBoq,
-  deleteDxf,
-  saveCombination,
-  updateCombination,
-} from "./App";
 import { MinusCircleIcon } from "@heroicons/react/24/solid";
+
 import { IGaeb } from "./gaeb.interface";
+import { deleteBoq, deleteDxf, updateCombination } from "./App";
+import { CombinedData } from "./combinedData.interface";
 
 export default function CombinedTable({
   content,
@@ -14,8 +11,8 @@ export default function CombinedTable({
   selectedBoq,
   setSelectedBoq,
 }: {
-  content: any[];
-  setCombinedData: React.Dispatch<React.SetStateAction<[]>>;
+  content: CombinedData[];
+  setCombinedData: React.Dispatch<React.SetStateAction<CombinedData[]>>;
   selectedBoq: IGaeb | null;
   setSelectedBoq: React.Dispatch<React.SetStateAction<IGaeb | null>>;
 }) {
@@ -30,6 +27,46 @@ export default function CombinedTable({
         x.shortText.toLocaleLowerCase().includes(search.toLocaleLowerCase())
       )
   );
+
+  const addToDxfButton = (elementId: string) => {
+    if (selectedBoq)
+      updateCombination(elementId, selectedBoq).then((res) => {
+        setCombinedData(res);
+        setSelectedBoq(null);
+      });
+  };
+
+  const changeCombinationDxfAmount = (elementId: string, value: string) => {
+    setCombinedData((state) => {
+      state.find((x) => x.id === elementId)!.amount = parseInt(value);
+      return state.filter((x) => x);
+    });
+  };
+
+  const changeCombinationBoqAmount = (
+    elementId: string,
+    billOfQuantityId: string,
+    value: string
+  ) => {
+    setCombinedData((state) => {
+      state
+        .find((x) => x.id === elementId)!
+        .bill_of_quantity.find((x) => x.id === billOfQuantityId)!.quantity =
+        parseInt(value);
+      return state.filter((x) => x);
+    });
+  };
+
+  const deleteBoqButton = (billOfQuantityId: string) => {
+    deleteBoq(billOfQuantityId).then((res) => {
+      setCombinedData(res);
+    });
+  };
+
+  const deleteDxfButton = (elementId: string) =>
+    deleteDxf(elementId).then((res) => {
+      setCombinedData(res);
+    });
 
   return (
     <div className="border-2 bg-blue-50">
@@ -53,11 +90,7 @@ export default function CombinedTable({
               className="h-10 w-10"
               key={element.entity_type_id}
               onClick={(e) => {
-                if (selectedBoq)
-                  updateCombination(element.id, selectedBoq).then((res) => {
-                    setCombinedData(res);
-                    setSelectedBoq(null);
-                  });
+                addToDxfButton(element.id);
               }}
             >
               <td>
@@ -73,26 +106,40 @@ export default function CombinedTable({
                     <button
                       className="float-right mr-4 text-red-600 pr-2 pl-2 hover:bg-red-400 hover:text-red-900 transition duration-300 ease-in-out"
                       onClick={(e) => {
-                        deleteBoq(billOfQuantity.id).then((res) => {
-                          setCombinedData(res);
-                        });
+                        deleteBoqButton(billOfQuantity.id);
                       }}
                     >
                       <MinusCircleIcon className="w-6" />
                     </button>
-                    <span className="ml-4 text-xs float-right mr-4">
-                      {billOfQuantity.quantity}
-                    </span>
+                    <input
+                      className="w-14 text-right float-right"
+                      type={"number"}
+                      onChange={(e) => {
+                        changeCombinationBoqAmount(
+                          element.id,
+                          billOfQuantity.id,
+                          e.target.value
+                        );
+                      }}
+                      value={billOfQuantity.quantity}
+                    />
                   </div>
                 ))}
               </td>
-              <td className="align-top">{element.amount}</td>
+              <td className="align-top">
+                <input
+                  className="w-14 text-right"
+                  type={"number"}
+                  onChange={(e) => {
+                    changeCombinationDxfAmount(element.id, e.target.value);
+                  }}
+                  value={element.amount}
+                />
+              </td>
               <td
                 className="w-10 p-2 text-red-600 hover:bg-red-400 hover:text-red-900 transition duration-300 ease-in-out"
                 onClick={(e) => {
-                  deleteDxf(element.id).then((res) => {
-                    setCombinedData(res);
-                  });
+                  deleteDxfButton(element.id);
                 }}
               >
                 <MinusCircleIcon className="w-8" />

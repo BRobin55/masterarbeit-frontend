@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CombinedData } from "./combinedData.interface";
 import { IGaeb } from "./gaeb.interface";
 import { IParserResult } from "./parser-result.interface";
 
@@ -6,11 +7,13 @@ export default function BOQTable({
   content,
   selectedBoq,
   setSelectedBoq,
+  combinedData,
 }: {
   content: IGaeb[];
   selectedBoq: IGaeb | null;
   setSelectedBoq: React.Dispatch<React.SetStateAction<IGaeb | null>>;
   selectedDxf: IParserResult | null;
+  combinedData: CombinedData[];
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
@@ -49,22 +52,39 @@ export default function BOQTable({
           </tr>
         </thead>
         <tbody className="overflow-y-auto overflow-x-hidden">
-          {filteredContent.map((element) => (
-            <tr
-              key={element.position}
-              className={`hover:bg-blue-100 max-h-12 w-10 ${
-                selectedBoq?.position === element.position ? "bg-blue-100" : ""
-              }`}
-              onClick={(e) => {
-                console.log("set " + element.position);
-                setSelectedBoq(element);
-              }}
-            >
-              <td className="">{element.shortText}</td>
-              <td className="">{"?"}</td>
-              <td className="">{`${element.quantity} ${element.unitTag}`}</td>
-            </tr>
-          ))}
+          {filteredContent.map((element) => {
+            const amountNotCombined = combinedData
+              .flatMap((x) => x.bill_of_quantity)
+              .reduce(
+                (prev, curr) =>
+                  curr.position === element.position
+                    ? prev - curr.quantity
+                    : prev,
+                element.quantity
+              );
+            return (
+              <tr
+                key={element.position}
+                className={` max-h-12 w-10 ${
+                  selectedBoq?.position === element.position
+                    ? "bg-blue-100"
+                    : ""
+                } ${
+                  amountNotCombined === 0
+                    ? " text-gray-300"
+                    : "hover:bg-blue-100"
+                }`}
+                onClick={(e) => {
+                  console.log("set " + element.position);
+                  if (amountNotCombined !== 0) setSelectedBoq(element);
+                }}
+              >
+                <td className="">{element.shortText}</td>
+                <td className="">{"?"}</td>
+                <td className="">{`${amountNotCombined} ${element.unitTag}`}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
