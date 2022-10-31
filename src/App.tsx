@@ -6,7 +6,11 @@ import CombinedTable from "./Combined";
 import { CombinedData } from "./combinedData.interface";
 import DxfTable from "./Dxf";
 import { IGaeb } from "./gaeb.interface";
-import { CreateDxfElementWithBoq, DxfElementDto } from "./interfaces";
+import {
+  CreateBillOfQuantity,
+  CreateDxfElementWithBoq,
+  DxfElementDto,
+} from "./interfaces";
 import { IParserResult } from "./parser-result.interface";
 
 /*const boqEntries: IGaeb[] = [
@@ -51,11 +55,24 @@ export const saveCombination = async (
     .then((res) => res.data as CombinedData[]);
 };
 
-export const updateCombination = async (dxfId: string, boq: IGaeb) => {
+export const updateCombination = async (
+  dxfId: string,
+  dxfAmount: number | null,
+  boq: IGaeb | null
+) => {
   return axios
     .patch("http://localhost:4001/dxf-element/" + dxfId, {
-      billOfQuantities: [boq],
+      ...(dxfAmount && { amount: dxfAmount }),
+      ...(boq && { billOfQuantities: [boq] }),
     } as CreateDxfElementWithBoq)
+    .then((res) => res.data as CombinedData[]);
+};
+
+export const updateBoq = async (boqId: string, quantity: number) => {
+  return axios
+    .patch("http://localhost:4001/dxf-element/boq/" + boqId, {
+      quantity: quantity,
+    } as CreateBillOfQuantity)
     .then((res) => res.data as CombinedData[]);
 };
 

@@ -70,6 +70,7 @@ export default function DxfTable({
                     : "hover:bg-blue-100"
                 }`}
                 onClick={async (e) => {
+                  element.amount = amountNotCombined;
                   if (amountNotCombined !== 0)
                     if (selectedBoq) {
                       saveCombination(selectedBoq, element).then((res) => {

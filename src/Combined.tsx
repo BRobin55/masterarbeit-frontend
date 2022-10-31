@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MinusCircleIcon } from "@heroicons/react/24/solid";
 
 import { IGaeb } from "./gaeb.interface";
-import { deleteBoq, deleteDxf, updateCombination } from "./App";
+import { deleteBoq, deleteDxf, updateBoq, updateCombination } from "./App";
 import { CombinedData } from "./combinedData.interface";
 
 export default function CombinedTable({
@@ -30,10 +30,16 @@ export default function CombinedTable({
 
   const addToDxfButton = (elementId: string) => {
     if (selectedBoq)
-      updateCombination(elementId, selectedBoq).then((res) => {
+      updateCombination(elementId, null, selectedBoq).then((res) => {
         setCombinedData(res);
         setSelectedBoq(null);
       });
+  };
+
+  const updateDxfQuantity = (elementId: string, amount: number | null) => {
+    updateCombination(elementId, amount, null).then((res) => {
+      setCombinedData(res);
+    });
   };
 
   const changeCombinationDxfAmount = (elementId: string, value: string) => {
@@ -120,6 +126,7 @@ export default function CombinedTable({
                           billOfQuantity.id,
                           e.target.value
                         );
+                        updateBoq(billOfQuantity.id, parseInt(e.target.value));
                       }}
                       value={billOfQuantity.quantity}
                     />
@@ -132,6 +139,7 @@ export default function CombinedTable({
                   type={"number"}
                   onChange={(e) => {
                     changeCombinationDxfAmount(element.id, e.target.value);
+                    updateDxfQuantity(element.id, parseInt(e.target.value));
                   }}
                   value={element.amount}
                 />

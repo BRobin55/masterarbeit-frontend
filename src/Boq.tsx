@@ -76,7 +76,10 @@ export default function BOQTable({
                 }`}
                 onClick={(e) => {
                   console.log("set " + element.position);
-                  if (amountNotCombined !== 0) setSelectedBoq(element);
+                  if (amountNotCombined !== 0) {
+                    element.quantity = amountNotCombined;
+                    setSelectedBoq(element);
+                  }
                 }}
               >
                 <td className="">{element.shortText}</td>

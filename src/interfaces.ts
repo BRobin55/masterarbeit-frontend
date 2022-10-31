@@ -8,7 +8,7 @@ export interface DxfElementDto {
   billOfQuantities: CreateBillOfQuantity[];
 }
 
-interface CreateBillOfQuantity {
+export interface CreateBillOfQuantity {
   position: string;
   type: string;
   shortText: string;
@@ -26,5 +26,6 @@ export interface CreateDxfElementWithBoq {
   entity_type_name_acad_proxy_class_with_id: string;
   Artikelnummer?: string;
   Artikelbezeichnung?: string;
+  amount: number;
   billOfQuantities: CreateBillOfQuantity[];
 }
