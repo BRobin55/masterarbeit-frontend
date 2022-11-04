@@ -21,6 +21,7 @@ export interface CreateBillOfQuantity {
 }
 
 export interface CreateDxfElementWithBoq {
+  projectId: string;
   entity_type_name: string;
   entity_type_id: string;
   entity_type_name_acad_proxy_class_with_id: string;

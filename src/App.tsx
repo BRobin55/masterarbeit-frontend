@@ -1,16 +1,13 @@
 //import logo from "./logo.svg";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import AcceptCombinationModal from "./AcceptCombinations";
 import BOQTable from "./Boq";
 import CombinedTable from "./Combined";
 import { CombinedData } from "./combinedData.interface";
 import DxfTable from "./Dxf";
 import { IGaeb } from "./gaeb.interface";
-import {
-  CreateBillOfQuantity,
-  CreateDxfElementWithBoq,
-  DxfElementDto,
-} from "./interfaces";
+import { CreateBillOfQuantity, CreateDxfElementWithBoq } from "./interfaces";
 import { IParserResult } from "./parser-result.interface";
 
 /*const boqEntries: IGaeb[] = [
@@ -45,11 +42,13 @@ const parserResult: IParserResult[] = [
 
 export const saveCombination = async (
   boq: IGaeb,
-  dxfElement: IParserResult
+  dxfElement: IParserResult,
+  projectId: string
 ) => {
   return axios
     .post("http://localhost:4001/dxf-element", {
       ...dxfElement,
+      projectId,
       billOfQuantities: [boq],
     } as CreateDxfElementWithBoq)
     .then((res) => res.data as CombinedData[]);
@@ -88,6 +87,12 @@ export const deleteDxf = async (dxfId: string) => {
     .then((res) => res.data as CombinedData[]);
 };
 
+export const findAll = async () => {
+  return axios
+    .get("http://localhost:4001/dxf-element/")
+    .then((res) => res.data as CombinedData[]);
+};
+
 function App() {
   const [lvData, setLvData] = useState([] as IGaeb[]);
   const [dxfData, setDxfData] = useState([] as IParserResult[]);
@@ -95,6 +100,18 @@ function App() {
 
   const [selectedBoq, setSelectedBoq] = useState(null as IGaeb | null);
   const [selectedDxf, setSelectedDxf] = useState(null as IParserResult | null);
+  const [selectedProject, setSelectedProject] = useState("p1");
+
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const fetchCombined = async (projectId: string) => {
+    const combined = await axios.get(
+      "http://localhost:4001/dxf-element/" + projectId
+    );
+    setCombinedData(combined.data);
+
+    if (!combined.data.length) setModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchGaeb = async () => {
@@ -105,20 +122,29 @@ function App() {
       const dxf = await axios.get("http://localhost:4001/groupeDxf");
       setDxfData(dxf.data);
     };
-    const fetchCombined = async () => {
-      const combined = await axios.get("http://localhost:4001/dxf-element/");
-      setCombinedData(combined.data);
-    };
 
     fetchDxf();
     fetchGaeb();
-    fetchCombined();
+    fetchCombined(selectedProject);
   }, []);
   return (
     <div className="App">
       <h1 className="text-3xl font-bold underline m-2">
         Leistungsverzeichnis & DXF
       </h1>
+      <select
+        onChange={(e) => {
+          setSelectedProject(e.target.value);
+          fetchCombined(e.target.value);
+        }}
+      >
+        <option value="p1">Project 1</option>
+        <option value="p2">Project 2</option>
+      </select>
+      <AcceptCombinationModal
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+      />
       <div className="grid grid-cols-3 gap-4 max-h-[36rem]">
         <BOQTable
           content={lvData}
@@ -135,6 +161,7 @@ function App() {
           setSelectedBoq={setSelectedBoq}
           combinedData={combinedData}
           setCombinedData={setCombinedData}
+          selectedProject={selectedProject}
         />
         <CombinedTable
           content={combinedData}
@@ -142,8 +169,6 @@ function App() {
           selectedBoq={selectedBoq}
           setSelectedBoq={setSelectedBoq}
         />
-        <div>asd</div>
-        <div>sdsa</div>
       </div>
     </div>
   );

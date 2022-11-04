@@ -12,6 +12,7 @@ export default function DxfTable({
   setSelectedBoq,
   combinedData,
   setCombinedData,
+  selectedProject,
 }: {
   content: IParserResult[];
   selectedDxf: IParserResult | null;
@@ -20,6 +21,7 @@ export default function DxfTable({
   setSelectedBoq: React.Dispatch<React.SetStateAction<IGaeb | null>>;
   combinedData: CombinedData[];
   setCombinedData: React.Dispatch<React.SetStateAction<CombinedData[]>>;
+  selectedProject: string;
 }) {
   const [search, setSearch] = useState("");
 
@@ -73,7 +75,11 @@ export default function DxfTable({
                   element.amount = amountNotCombined;
                   if (amountNotCombined !== 0)
                     if (selectedBoq) {
-                      saveCombination(selectedBoq, element).then((res) => {
+                      saveCombination(
+                        selectedBoq,
+                        element,
+                        selectedProject
+                      ).then((res) => {
                         setCombinedData(res);
                       });
                       setSelectedDxf(null);
