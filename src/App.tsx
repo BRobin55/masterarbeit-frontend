@@ -41,7 +41,7 @@ const parserResult: IParserResult[] = [
 ];*/
 
 export const saveCombination = async (
-  boq: IGaeb,
+  boq: IGaeb[],
   dxfElement: IParserResult,
   projectId: string
 ) => {
@@ -49,7 +49,7 @@ export const saveCombination = async (
     .post("http://localhost:4001/dxf-element", {
       ...dxfElement,
       projectId,
-      billOfQuantities: [boq],
+      billOfQuantities: boq,
     } as CreateDxfElementWithBoq)
     .then((res) => res.data as CombinedData[]);
 };
@@ -144,21 +144,25 @@ function App() {
       <AcceptCombinationModal
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
+        selectedProject={selectedProject}
       />
       <div className="grid grid-cols-3 gap-4 max-h-[36rem]">
-        <BOQTable
-          content={lvData}
-          selectedBoq={selectedBoq}
-          setSelectedBoq={setSelectedBoq}
-          selectedDxf={selectedDxf}
-          combinedData={combinedData}
-        />
         <DxfTable
           content={dxfData}
           selectedDxf={selectedDxf}
           setSelectedDxf={setSelectedDxf}
           selectedBoq={selectedBoq}
           setSelectedBoq={setSelectedBoq}
+          combinedData={combinedData}
+          setCombinedData={setCombinedData}
+          selectedProject={selectedProject}
+        />
+        <BOQTable
+          content={lvData}
+          selectedBoq={selectedBoq}
+          setSelectedBoq={setSelectedBoq}
+          selectedDxf={selectedDxf}
+          setSelectedDxf={setSelectedDxf}
           combinedData={combinedData}
           setCombinedData={setCombinedData}
           selectedProject={selectedProject}

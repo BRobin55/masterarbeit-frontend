@@ -76,7 +76,7 @@ export default function DxfTable({
                   if (amountNotCombined !== 0)
                     if (selectedBoq) {
                       saveCombination(
-                        selectedBoq,
+                        [selectedBoq],
                         element,
                         selectedProject
                       ).then((res) => {

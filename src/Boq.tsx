@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { saveCombination } from "./App";
 import { CombinedData } from "./combinedData.interface";
 import { IGaeb } from "./gaeb.interface";
 import { IParserResult } from "./parser-result.interface";
@@ -7,13 +8,20 @@ export default function BOQTable({
   content,
   selectedBoq,
   setSelectedBoq,
+  selectedDxf,
+  setSelectedDxf,
   combinedData,
+  setCombinedData,
+  selectedProject,
 }: {
   content: IGaeb[];
   selectedBoq: IGaeb | null;
   setSelectedBoq: React.Dispatch<React.SetStateAction<IGaeb | null>>;
   selectedDxf: IParserResult | null;
+  setSelectedDxf: React.Dispatch<React.SetStateAction<IParserResult | null>>;
   combinedData: CombinedData[];
+  setCombinedData: React.Dispatch<React.SetStateAction<CombinedData[]>>;
+  selectedProject: string;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
@@ -76,10 +84,22 @@ export default function BOQTable({
                 }`}
                 onClick={(e) => {
                   console.log("set " + element.position);
-                  if (amountNotCombined !== 0) {
-                    element.quantity = amountNotCombined;
-                    setSelectedBoq(element);
-                  }
+                  element.quantity = amountNotCombined;
+                  if (amountNotCombined !== 0)
+                    if (selectedDxf) {
+                      saveCombination(
+                        [element],
+                        selectedDxf,
+                        selectedProject
+                      ).then((res) => {
+                        setCombinedData(res);
+                      });
+                      setSelectedDxf(null);
+                      setSelectedBoq(null);
+                    } else {
+                      console.log("set " + element.position);
+                      setSelectedBoq(element);
+                    }
                 }}
               >
                 <td className="">{element.shortText}</td>
