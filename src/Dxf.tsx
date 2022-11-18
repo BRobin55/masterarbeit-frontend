@@ -26,7 +26,7 @@ export default function DxfTable({
   const [search, setSearch] = useState("");
 
   const filteredContent = content.filter((element) =>
-    element.entity_type_name_acad_proxy_class_with_id
+    element.entity_type_name
       .toLocaleLowerCase()
       .includes(search.toLocaleLowerCase())
   );
@@ -41,9 +41,9 @@ export default function DxfTable({
         <thead className="bg-blue-300 font-bold text-left">
           <tr>
             <th>Beschreibung</th>
-            <th>Beschreibung 2</th>
+            <th>Checkliste</th>
             <th>
-              Menge (
+              Menge <br />(
               {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
             </th>
           </tr>
@@ -52,18 +52,16 @@ export default function DxfTable({
           {filteredContent.map((element) => {
             const amountNotCombined = combinedData.reduce(
               (prev, curr) =>
-                curr.entity_type_name_acad_proxy_class_with_id ===
-                element.entity_type_name_acad_proxy_class_with_id
+                curr.entity_type_name === element.entity_type_name
                   ? prev - curr.amount
                   : prev,
               element.amount
             );
             return (
               <tr
-                key={element.entity_type_name_acad_proxy_class_with_id}
+                key={element.entity_type_name}
                 className={`max-h-12 w-10 ${
-                  selectedDxf?.entity_type_name_acad_proxy_class_with_id ===
-                  element.entity_type_name_acad_proxy_class_with_id
+                  selectedDxf?.entity_type_name === element.entity_type_name
                     ? "bg-blue-100"
                     : ""
                 } ${
@@ -85,18 +83,13 @@ export default function DxfTable({
                       setSelectedDxf(null);
                       setSelectedBoq(null);
                     } else {
-                      console.log(
-                        "set " +
-                          element.entity_type_name_acad_proxy_class_with_id
-                      );
+                      console.log("set " + element.entity_type_name);
                       setSelectedDxf(element);
                     }
                 }}
               >
                 <td>{element.entity_type_name}</td>
-                <td className="">
-                  {element.entity_type_name_acad_proxy_class_with_id}
-                </td>
+                <td className=""></td>
                 <td>{amountNotCombined}</td>
               </tr>
             );

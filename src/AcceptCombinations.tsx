@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   ExclamationTriangleIcon,
@@ -31,6 +31,7 @@ export default function AcceptCombinationModal({
     console.log("a");
 
     findAll().then((res) => {
+      const filteredByKomponent = res.filter((component) => component);
       setCombinedDataSuggestion(res);
     });
   }
@@ -80,7 +81,7 @@ export default function AcceptCombinationModal({
                         as="h3"
                         className="text-lg font-medium leading-6 text-gray-900"
                       >
-                        Combine data from other projects
+                        Verknüpfungen von anderen Projekten übernehmen
                       </Dialog.Title>
                       <div className="mt-2 w-full">
                         <table className="w-full">
@@ -94,16 +95,12 @@ export default function AcceptCombinationModal({
                           <tbody className=" overflow-y-auto overflow-x-hidden">
                             {combinedDataSuggestion.map((element) => (
                               <tr
-                                className="h-10 w-10 border-4"
+                                className="h-10 w-10 border-4 hover:bg-blue-100"
                                 key={element.entity_type_id}
                                 onClick={(e) => {}}
                               >
-                                <td>
-                                  <div className="hover:bg-blue-100 ">
-                                    {
-                                      element.entity_type_name_acad_proxy_class_with_id
-                                    }
-                                  </div>
+                                <td className=" ">
+                                  <div>{element.entity_type_name}</div>
                                   {element.bill_of_quantity.map(
                                     (billOfQuantity: any) => (
                                       <div
@@ -160,17 +157,28 @@ export default function AcceptCombinationModal({
                     type="button"
                     className="inline-flex w-full justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                     onClick={() => {
-                      combinedDataSuggestion.map((data) =>
-                        saveCombination(
-                          data.bill_of_quantity,
-                          data,
-                          selectedProject
-                        )
-                      );
+                      Promise.all(
+                        combinedDataSuggestion.map((data) => {
+                          const { id, ...restData } = data;
+                          return saveCombination(
+                            restData.bill_of_quantity.map((boq) => {
+                              const { id, dxfElementId, ...rest } = boq;
+                              return { ...rest };
+                            }),
+                            restData,
+                            selectedProject
+                          );
+                        })
+                      ).then((combinations) => {
+                        console.log(combinations[combinations.length - 1]);
+                        setCombinedDataSuggestion(
+                          combinations[combinations.length - 1]
+                        );
+                      });
                       setModalOpen(false);
                     }}
                   >
-                    Apply
+                    Übernehmen
                   </button>
                   <button
                     type="button"
@@ -178,7 +186,7 @@ export default function AcceptCombinationModal({
                     onClick={() => setModalOpen(false)}
                     ref={cancelButtonRef}
                   >
-                    Cancel
+                    Abbrechen
                   </button>
                 </div>
               </Dialog.Panel>

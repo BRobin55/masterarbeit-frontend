@@ -119,18 +119,20 @@ function App() {
       setLvData((await gaeb).data);
     };
     const fetchDxf = async () => {
-      const dxf = await axios.get("http://localhost:4001/groupeDxf");
+      const dxf = await axios.get(
+        "http://localhost:4001/groupeDxf/" + selectedProject
+      );
       setDxfData(dxf.data);
     };
 
     fetchDxf();
     fetchGaeb();
     fetchCombined(selectedProject);
-  }, []);
+  }, [selectedProject]);
   return (
     <div className="App">
       <h1 className="text-3xl font-bold underline m-2">
-        Leistungsverzeichnis & DXF
+        Komponenten & Teilleistungen
       </h1>
       <select
         onChange={(e) => {

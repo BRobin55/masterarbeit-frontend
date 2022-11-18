@@ -26,16 +26,49 @@ export default function BOQTable({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
 
+  function sortWithSelectedBoq(content: IGaeb[]) {
+    if (selectedDxf) {
+      const splitComponent = selectedDxf.entity_type_name.split(/[-_\s]+/);
+
+      const contentWithOrder = content.map((c) => {
+        let occurrence = 0;
+        splitComponent.forEach(
+          (sp) =>
+            (occurrence +=
+              c.longText.toLocaleLowerCase().split(sp.toLocaleLowerCase())
+                .length - 1)
+        );
+        return { ...c, occurrence };
+      });
+
+      contentWithOrder.sort((a, b) => b.occurrence - a.occurrence);
+      console.log(contentWithOrder);
+      return contentWithOrder.map((boq) => {
+        const { occurrence, ...response } = boq;
+        return { ...response } as IGaeb;
+      });
+    }
+    return content;
+  }
+
   //const filters = filter.split(",");
-  const filteredContent = content
-    .filter((element) =>
-      element.longText.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-    )
-    .filter((element) =>
-      filter !== ""
-        ? !element.shortText.toLocaleLowerCase().includes(filter)
-        : true
-    );
+  const filteredContent = sortWithSelectedBoq(
+    content
+      .filter((element) =>
+        element.longText
+          .toLocaleLowerCase()
+          .includes(search.toLocaleLowerCase())
+      )
+      .filter((element) =>
+        filter !== ""
+          ? !element.longText
+              .toLocaleLowerCase()
+              .includes(filter.toLocaleLowerCase())
+          : true
+      )
+  );
+
+  console.log(filteredContent.length);
   return (
     <div className="border-2 bg-blue-50">
       <input
@@ -49,10 +82,10 @@ export default function BOQTable({
         onChange={(e) => setFilter(e.target.value)}
       />
       <table className="w-full">
-        <thead className="bg-blue-300 font-bold">
+        <thead className="bg-blue-300  font-bold">
           <tr className="text-left">
-            <th className="">Beschreibung Short</th>
-            <th className="">Long</th>
+            <th className="">Positions-nummer</th>
+            <th className="">Kurz-Text</th>
             <th className="">
               Menge (
               {filteredContent.reduce((prev, curr) => prev + curr.quantity, 0)})
@@ -88,8 +121,8 @@ export default function BOQTable({
                   if (amountNotCombined !== 0)
                     if (selectedDxf) {
                       saveCombination(
-                        [element],
-                        selectedDxf,
+                        [{ ...element, quantity: 1 }],
+                        { ...selectedDxf, amount: 1 },
                         selectedProject
                       ).then((res) => {
                         setCombinedData(res);
@@ -102,8 +135,8 @@ export default function BOQTable({
                     }
                 }}
               >
+                <td className="">{element.position}</td>
                 <td className="">{element.shortText}</td>
-                <td className="">{"?"}</td>
                 <td className="">{`${amountNotCombined} ${element.unitTag}`}</td>
               </tr>
             );

@@ -20,7 +20,7 @@ export default function CombinedTable({
 
   const filteredContent = content.filter(
     (element) =>
-      element.entity_type_name_acad_proxy_class_with_id
+      element.entity_type_name
         .toLocaleLowerCase()
         .includes(search.toLocaleLowerCase()) ||
       (element.bill_of_quantity as any[]).find((x) =>
@@ -30,10 +30,12 @@ export default function CombinedTable({
 
   const addToDxfButton = (elementId: string) => {
     if (selectedBoq)
-      updateCombination(elementId, null, selectedBoq).then((res) => {
-        setCombinedData(res);
-        setSelectedBoq(null);
-      });
+      updateCombination(elementId, null, { ...selectedBoq, quantity: 1 }).then(
+        (res) => {
+          setCombinedData(res);
+          setSelectedBoq(null);
+        }
+      );
   };
 
   const updateDxfQuantity = (elementId: string, amount: number | null) => {
@@ -86,7 +88,10 @@ export default function CombinedTable({
         <thead className=" bg-blue-300 font-bold text-left">
           <tr>
             <th>Beschreibung</th>
-            <th>Menge</th>
+            <th>
+              Menge <br />(
+              {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
+            </th>
             <th className=""></th>
           </tr>
         </thead>
@@ -101,12 +106,12 @@ export default function CombinedTable({
             >
               <td>
                 <div className="hover:bg-blue-100 ">
-                  {element.entity_type_name_acad_proxy_class_with_id}
+                  {element.entity_type_name}
                 </div>
                 {element.bill_of_quantity.map((billOfQuantity: any) => (
                   <div className="" key={billOfQuantity.position}>
                     <span className="ml-4 text-xs">
-                      {billOfQuantity.shortText}
+                      {billOfQuantity.position.split(".")[0] + ". "}{billOfQuantity.shortText}
                     </span>
 
                     <button
