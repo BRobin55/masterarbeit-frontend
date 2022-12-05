@@ -3,7 +3,8 @@
 export interface CombinedData {
   id: string;
   entity_type_name: string;
-  entity_type_id: string;
+  checklistName: string;
+  room?: string;
   amount: number;
   bill_of_quantity: BillOfQuantity[];
 }

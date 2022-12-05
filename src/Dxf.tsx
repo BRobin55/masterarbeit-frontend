@@ -42,6 +42,7 @@ export default function DxfTable({
           <tr>
             <th>Beschreibung</th>
             <th>Checkliste</th>
+            <th>Verortung</th>
             <th>
               Menge <br />(
               {filteredContent.reduce((prev, curr) => prev + curr.amount, 0)})
@@ -89,7 +90,8 @@ export default function DxfTable({
                 }}
               >
                 <td>{element.entity_type_name}</td>
-                <td className=""></td>
+                <td className="">{element.checklistName}</td>
+                <td className="">{element.room}</td>
                 <td>{amountNotCombined}</td>
               </tr>
             );

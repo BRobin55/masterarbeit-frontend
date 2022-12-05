@@ -96,7 +96,7 @@ export default function AcceptCombinationModal({
                             {combinedDataSuggestion.map((element) => (
                               <tr
                                 className="h-10 w-10 border-4 hover:bg-blue-100"
-                                key={element.entity_type_id}
+                                key={element.id}
                                 onClick={(e) => {}}
                               >
                                 <td className=" ">

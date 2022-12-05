@@ -99,7 +99,7 @@ export default function CombinedTable({
           {filteredContent.map((element) => (
             <tr
               className="h-10 w-10"
-              key={element.entity_type_id}
+              key={element.id}
               onClick={(e) => {
                 addToDxfButton(element.id);
               }}
@@ -111,7 +111,8 @@ export default function CombinedTable({
                 {element.bill_of_quantity.map((billOfQuantity: any) => (
                   <div className="" key={billOfQuantity.position}>
                     <span className="ml-4 text-xs">
-                      {billOfQuantity.position.split(".")[0] + ". "}{billOfQuantity.shortText}
+                      {billOfQuantity.position.split(".")[0] + ". "}
+                      {billOfQuantity.shortText}
                     </span>
 
                     <button
