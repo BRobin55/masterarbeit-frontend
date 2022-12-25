@@ -30,6 +30,7 @@ export default function DxfTable({
       .toLocaleLowerCase()
       .includes(search.toLocaleLowerCase())
   );
+
   return (
     <div className="border-2 bg-blue-50">
       <input
@@ -60,7 +61,7 @@ export default function DxfTable({
             );
             return (
               <tr
-                key={element.entity_type_name}
+                key={element.entity_type_name+element.checklistName+element.room}
                 className={`max-h-12 w-10 ${
                   selectedDxf?.entity_type_name === element.entity_type_name
                     ? "bg-blue-100"
